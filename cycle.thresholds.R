@@ -13,10 +13,12 @@ for(csv.path.i in seq_along(csv.path.vec)){
   ct.tab <- fread(
     csv.path, skip=header.row-1, header=TRUE,
     na.strings="Undetermined",
-    select=c("CT","Well Position"))
-  well.mat <- str_match_named(ct.tab$Well, well.pattern)
+    select=c("CT", "Well Position"))
+  well.mat <- str_match_named(ct.tab$Well, well.pattern, list(
+    number=as.integer))
   cycle.thresholds.list[[csv.path]] <- data.table(
-    csv.path.i, well.mat, ct.tab)
+    csv.path.i, csv.path, well.mat, ct.tab,
+    number.fac=factor(well.mat[, "number"]))
 }
 cycle.thresholds <- do.call(rbind, cycle.thresholds.list)
 

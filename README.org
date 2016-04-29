@@ -1,0 +1,10 @@
+** TODOs
+
+- merge raw CT data files with Derek's annotations about columns and
+  rows of the plates.
+
+** 29 April 2016
+
+- [[file:figure-cycle-thresholds.R]] plots the CT values.
+- [[file:cycle.thresholds.R]] reads csv files with CT values from 384-well
+  plates.
