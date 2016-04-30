@@ -99,15 +99,6 @@ ggplot()+
             data=KO)+
   scale_fill_gradient2()
 
-ggplot()+
-  theme_bw()+
-  theme(panel.margin=grid::unit(0, "lines"))+
-  facet_grid(Gene ~ Treatment.fac, scales="free", space="free")+
-  geom_line(aes(Time.fac, relative.expression,
-                color=Genotype,
-                group=paste(`Technical replicate`, Genotype)),
-            data=zero.treatments)
-
 viz <- list(
   title="H3F3B RNA mouse data",
   overview=ggplot()+
@@ -147,8 +138,27 @@ viz <- list(
   duration=list(Gene=2000))
 animint2dir(viz, "figure-cycle-thresholds")
 
-pdf("figure-cycle-thresholds.pdf")
-print(platesPlot)
+gg.curves <- ggplot()+
+  theme_bw()+
+  theme(panel.margin=grid::unit(0, "lines"))+
+  facet_grid(Gene ~ Treatment.fac, scales="free", space="free")+
+  geom_line(aes(Time.fac, relative.expression,
+                color=Genotype,
+                group=paste(`Technical replicate`, Genotype)),
+            data=zero.treatments)+
+  ylab("relative expression (Ct difference from Gapdh)")+
+  xlab("hours after treatment")
+
+pdf("figure-cycle-thresholds-curves.pdf", h=8)
+print(gg.curves)
+dev.off()
+
+pdf("figure-cycle-thresholds-diff.pdf")
+print(viz$overview)
+dev.off()
+
+pdf("figure-cycle-thresholds.pdf", h=8)
+print(viz$wtko)
 dev.off()
 
 
