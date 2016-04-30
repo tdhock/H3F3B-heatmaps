@@ -24,7 +24,8 @@ for(txt.path.i in seq_along(txt.path.vec)){
     number=as.integer))
   only.data <- data.table(
     txt.path.i, txt.path, well.mat, ct.tab,
-    number.fac=factor(well.mat[, "number"]))
+    number.fac=factor(well.mat[, "number"], 1:24),
+    letter.fac=factor(well.mat[, "letter"], LETTERS[1:18]))
   data.dir <- dirname(txt.path)
   row.csv <- Sys.glob(file.path(data.dir, "*_Row.csv"))
   row.info <- fread(row.csv)
@@ -68,6 +69,18 @@ for(data.name in names(cycle.thresholds.list)){
   ordered.columns.list[[data.name]] <-
     one.dt[, names(name.counts), with=FALSE]
 }
-cycle.thresholds <- do.call(rbind, ordered.columns.list)
+no.stats <- do.call(rbind, ordered.columns.list)
+
+gapdh.means <- no.stats[Gene=="gapdh", list(
+  gapdh.mean.Ct=mean(Ct)),
+  by=.(Genotype, Time, Treatment)]
+setkey(gapdh.means, Genotype, Time, Treatment)
+setkey(no.stats, Genotype, Time, Treatment)
+no.gapdh <- no.stats[Gene!="gapdh",]
+cycle.thresholds <- no.gapdh[gapdh.means]
+cycle.thresholds[, Ct.diff := Ct - gapdh.mean.Ct]
+cycle.thresholds[, relative.expression := gapdh.mean.Ct - Ct]
+cycle.thresholds[, fold.difference := 2^(-Ct.diff)]
+cycle.thresholds[, log.fold.difference := log(fold.difference)]
 
 save(cycle.thresholds, file="cycle.thresholds.RData")
